@@ -14,8 +14,8 @@ barras e impedancias de generador.
 
 3. z_line.m calculará las impedancias de línea.
 
-4. z_comp.m calculará impedancias de compensación.
+4. z_comp.m calculará impedancias de compensación. (Para eléctricos)
 
 5. ybus.m calculará la matriz de admitancia nodal y la matriz, calculará los voltajes en cada barra y la impedancia equivalente de Thevenin en dicha barra
 
-6. lineflow.m calculará los flujos por todas la líneas
+6. lineflow.m calculará los flujos por todas la líneas. (Para eléctricos)
