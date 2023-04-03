@@ -7,7 +7,7 @@ lines = xlsread("data_io.xlsx", 4)
 
 
 #run VZ_gen.m
-#run z_line.m
+#z_line(lines)
 #run z_comp.m
 #run ybus.m
 #run lineflow.m
