@@ -6,8 +6,8 @@ z_load = xlsread("data_io.xlsx", 3)
 lines = xlsread("data_io.xlsx", 4)
 
 
-#run VZ_gen.m
-#z_line(lines)
+vz_gen(generation)
+z_line(lines)
 #run z_comp.m
 #run ybus.m
 #run lineflow.m

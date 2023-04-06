@@ -84,4 +84,9 @@ def z_serie(impedances):
         z_eq += i
     return z_eq
 
+'''Es el mismo método de nodos para resolver 
+circuitos pero en alterna'''
+def ybus():
+    pass
+
 main()

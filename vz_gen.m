@@ -1,34 +1,35 @@
 function [generation] = vz_gen(generation)
   
-  for i = 1:(length(generation.("List Gen")) - 1)
+  for i = 1:(length(generation(:, 1)) - 1)
     % Comprobación de que no hay dos fuentes en paralelo
-    for k = (i + 1):length(generation.("List Gen"))
-      if generation.("Bus i")(i) == generation.("Bus i")(k)
-        v_comp_a = complex((generation.("E ind(kV)")(i) * (10^3)) * cosd(generation.("Angle (degrees)")(i)) + generation.("E ind(kV)")(i) * sind(generation.("Angle (degrees)")(i)) * 1j);
-        v_comp_b = complex((generation.("E ind(kV)")(k) * (10^3)) * cosd(generation.("Angle (degrees)")(k)) + generation.("E ind(kV)")(k) * sind(generation.("Angle (degrees)")(k)) * 1j);
-        x_comp_a = complex(generation.("R gen (ohms)")(i) + generation.("X gen (ohms)")(i) * 1j);
-        x_comp_b = complex(generation.("R gen (ohms)")(k) + generation.("X gen (ohms)")(k) * 1j);
+    for k = (i + 1):length(generation(:, 1))
+      if generation(2, i) == generation(2, k)
+        v_comp_a = complex((generation(i, 4) * (10^3)) * cosd(generation(i, 5)), generation(i, 4) * sind(generation(i, 5)));
+        v_comp_b = complex((generation(4, k) * (10^3)) * cosd(generation(5, k)), generation(4, k) * sind(generation(5, k)));
+        x_comp_a = complex(generation(i, 6) + generation(i, 7));
+        x_comp_b = complex(generation(6, k) + generation(7,k));
         if v_comp_a / x_comp_a ~= v_comp_b / x_comp_b
           fprintf("Hay una inconsistencia entre dos fuentes en paralelo\n");
-          generation.("Warning")(k) = "WARNING!";
+          generation(k, 3) = 0;
         else
-          generation.("Warning")(k) = "OK";
+          generation(k, 3) = 1;
         endif
       endif
     endfor
     
     % Cálculo de la corriente
     corrientes = [];
-    for i = 1:length(generation.("List Gen"))
-      if strcmp(generation.("Warning"){i}, "WARNING!") ~= 1
-        v_comp = complex(generation.("E ind(kV)")(i) * cosd(generation.("Angle (degrees)")(i)) + generation.("E ind(kV)")(i) * sind(generation.("Angle (degrees)")(i)) * 1j);
-        x_comp = complex(generation.("R gen (ohms)")(i) + generation.("X gen (ohms)")(i) * 1j);
+    for i = 1:length(generation(:, 1))
+      if strcmp(generation(k, 3), 0) ~= 1
+      #disp(complex(generation(i, 4) * cosd(generation(i, 5)), generation(i, 4) * sind(generation(i, 5))))
+        v_comp = complex(generation(i, 4) * cosd(generation(i, 5)), generation(i, 4) * sind(generation(i, 5)));
+        x_comp = complex(generation(i, 6), generation(i, 7));
         corrientes(i) = v_comp / x_comp;
       else
         corrientes(i) = 0;
       endif
     endfor
-    generation.("I (A)") = corrientes;
+    generation(:, 8) = corrientes;
     
   endfor
   
