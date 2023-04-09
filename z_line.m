@@ -1,25 +1,26 @@
-function lines = z_line(lines)
+function [lines] = z_line(lines)
+    %verificamos inconsistencias
+    for i = 1:(length(lines.List_Line) - 1)
+        for j = (i + 1):length(lines.List_Line)
+            if lines.Bus_i(i) == lines.Bus_i(j) && lines.Bus_j(i) == lines.Bus_j(j)
+                lines.Warning(j) = 0;
+            else
+                if lines.Warning(i) != 0
+                    lines.Warning(i) = 1;
+                end
+            end
+        end
+    end
 
-  warn = {};
-  for i = 1:(length(lines(:,1)) - 1)
-    for j = (i + 1):length(lines(:, 1))
-      if lines(2, i) == lines(2, j) && lines(3, i) == lines(3, j)
-        printf("There is a WARNING\n");
-        lines(4, j) = 0;
-      endif
-    endfor
-  endfor
+    %calculamos impedancias
+    line_impedances = [];
+    for i = 1:length(lines.List_Line)
+        if lines.Warning(i) != 0
+            line_impedances(i) = complex(lines.l_km_(i) * lines.r_line__ohms_km_(i), lines.l_km_(i) * lines.x_line__ohms_km_ (i));
+        else
+            line_impedances(i) = 0;
+        end
+    end
 
-  line_impedances = [];
-  for i = 1:length(lines(:,1))
-    if !strcmp(lines(4, i), 0)
-      
-      line_impedances(i) = complex(lines(i, 5) * lines(i, 6),lines(i, 5) * lines(i, 7));
-    else
-      line_impedances(i) = 0;
-    endif
-  endfor
+end
 
-  lines(:, 9) = line_impedances;
-  
-endfunction
