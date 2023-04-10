@@ -15,7 +15,6 @@ z_load.colnames = txt3(1, :)
 lines = dataframe(lines);
 lines.colnames = txt4(1, :)
 
-#disp(lines.l_km_(1))
 generation = vz_gen(generation)
 lines = z_line(lines)
 #run z_comp.m

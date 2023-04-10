@@ -1,13 +1,13 @@
-function[S_ij,P_ij,Q_ij,Sji,Pji,Qji]=LINEA_FLOW(Y)  %,P,Q,M
+function [S_ij,P_ij,Q_ij,Sji,Pji,Qji]=lineflow(Y, lines)  %,P,Q,M
   % Calculo de flujo de potencias en las lineas
 
   %Falta agregar la funci�n voltaje de las barras
 
-  [~,~,Yshunt,yline] = funcion_lineas() ;
-  LINES =LINEAS();
+  [~,~,Yshunt,yline] = funcion_lineas() ; #acá necesito explicación de los ~
+  LINES =LINEAS(); #ok, acá defines LINES, pero luego no usas bien la variable, además, en main.m está la variable "lines", que vuelve obsoleta la función LINEAS ya que hace lo mismo y el profe había comentado que la lectura del archivo se hacía en "main.m"
   [~,~,Voltajes_Nodos,~]= YBUS_completo();
 
-  len=size(LINEAS);
+  len=size(LINEAS); #ok, esto es una lista con el número de elementos de cada dimensión de una matriz
   iniciales=LINEAS(1:len(1),1);
    % Nodos y lista
 
@@ -17,9 +17,9 @@ function[S_ij,P_ij,Q_ij,Sji,Pji,Qji]=LINEA_FLOW(Y)  %,P,Q,M
   Sji=[0];    % Flujo de potencia en la lineas de j a i
   Voltajes_Nodos;
 
-  for m=1:len(1)
-   Bus_i=LINEAS(m,2);    %Barra i
-   Bus_j=LINEAS(m,3);    %Barra j
+  for m=1:len(1) 
+   Bus_i=LINEAS(m,2); #me parece que la sintaxis está mal porque habías definido LINES y ahora llamas a la función LINEAS() poniéndole argumentos que no están definidos   %Barra i
+   Bus_j=LINEAS(m,3);  #igual acá y para abajo hay errores parecidos, los comentamos a fondo en la reunión %Barra j
    Vi=Voltajes_Nodos(Bus_i,1);  %Voltaje en la barra i
    Vj=Voltajes_Nodos(Bus_j,1);  %Voltaje en la barra j
    yij=yline(m,1);  % Admitancia en la linea ij

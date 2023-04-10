@@ -18,7 +18,7 @@ function[S_Gen,Pgen,Qgen]=potencia_generadores()
     Qgen(k,1)=  imag(S_Gen(k,1));
   endfor
 
-
+  #eso de abajo hay que hacerlo en el main.m luego y está mal planteado
   xlswrite('dataIo', iniciales,'POWER_GEN','A2:B30');
   xlswrite('dataIo', Pgen,'POWER_GEN','C2');
   xlswrite('dataIo', Qgen,'POWER_GEN','D2');
