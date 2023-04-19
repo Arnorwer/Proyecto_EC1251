@@ -12,7 +12,7 @@ def main():
     lines = pd.read_excel("data_io.xlsx", "LINES")
     lines = z_line(lines)
     generation = vz_gen(generation)
-    ybus(lines, load)
+    ybus(lines, generation, load)
 
 '''Esta función calcula el vector de corrientes para todas la
 barras e impedancias de generador'''
@@ -88,7 +88,7 @@ def z_serie(impedances):
 
 '''Es el mismo método de nodos para resolver 
 circuitos pero en alterna'''
-def ybus(lines: pd.DataFrame, load: pd.DataFrame):
+def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
     
     #Calculamos la dimensión de nuestra matriz, que será de n x n
     #donde n es el número de nodos sin contar la referencia
@@ -150,5 +150,4 @@ def ybus(lines: pd.DataFrame, load: pd.DataFrame):
                 ybus_array[j][i] = -(lines["IMPEDANCE"][iter])**-1
                 ybus_array[i][j] = -(lines["IMPEDANCE"][iter])**-1
         iter += 1
-    
 main()

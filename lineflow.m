@@ -1,4 +1,4 @@
-function [S_ij,P_ij,Q_ij,Sji,Pji,Qji]=lineflow(Y, lines)  %,P,Q,M
+function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(Y, lines)  %,P,Q,M
   % Calculo de flujo de potencias en las lineas
 
   %Falta agregar la funci�n voltaje de las barras
@@ -38,8 +38,8 @@ function [S_ij,P_ij,Q_ij,Sji,Pji,Qji]=lineflow(Y, lines)  %,P,Q,M
    P=[P_ij;Pji];
    %Potencias reactivas
    Q=[Q_ij;Qji];
-   Bus_i=LINEAS(1:len(1),2);
-   Bus_j=LINEAS(1:len(1),3);
-   inicialesij=[iniciales,Bus_i,Bus_j;iniciales,Bus_j,Bus_i] ;
+   Bus_i = LINEAS(1:len(1),2);
+   Bus_j = LINEAS(1:len(1),3);
+   inicialesij = [iniciales,Bus_i,Bus_j;iniciales,Bus_j,Bus_i] ;
 
 endfunction
