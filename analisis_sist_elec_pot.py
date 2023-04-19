@@ -12,6 +12,7 @@ def main():
     lines = pd.read_excel("data_io.xlsx", "LINES")
     lines = z_line(lines)
     generation = vz_gen(generation)
+    ybus(lines, load)
 
 '''Esta función calcula el vector de corrientes para todas la
 barras e impedancias de generador'''
@@ -39,7 +40,6 @@ def vz_gen(generation: pd.DataFrame):
             x_comp = np.complex_(generation["R gen (ohms)"][i] + generation["X gen (ohms)"][i] * 1j)
             corrientes.append(v_comp/x_comp)
         else:
-            pass
             corrientes.append(0)
     generation["I (A)"] = corrientes
     return generation
@@ -88,7 +88,67 @@ def z_serie(impedances):
 
 '''Es el mismo método de nodos para resolver 
 circuitos pero en alterna'''
-def ybus():
-    pass
+def ybus(lines: pd.DataFrame, load: pd.DataFrame):
+    
+    #Calculamos la dimensión de nuestra matriz, que será de n x n
+    #donde n es el número de nodos sin contar la referencia
+    dim = 0
+    for i in lines["Bus j"]:
+        if dim < i:
+            dim = i
+    #Creación de la matriz
+    ybus_array = np.zeros((dim, dim), dtype = "complex_")
+    
+    #Primero calculamos la impedancia equivalente en 
+    #cada nodo y al invertir este resultado tendremos 
+    #nuestra diagonal principal
+    for i in range(dim):
+        z_i = 0
+        inv_sum = 0
+        iter = 0
+        #Primero sumamos la impedancia de las cargas
+        for j in load["Bus i"]:
+            if j == i + 1:
+                inv_sum += (load["R load (ohms)"][iter])**-1
+                if load["Type"][iter] == "IND":
+                    inv_sum += (np.complex_(load["X load (ohms)"][iter] * 1j))**-1
+                else:
+                    inv_sum -= (np.complex_(load["X load (ohms)"][iter] * 1j))**-1
+                z_i += inv_sum**-1
+                iter += 1
+        iter = 0
+        
+        #Luego añadimos la impedancia de línea
+        for j in lines["Bus i"]:
+            if j == i + 1:
+                if lines["IMPEDANCE"][iter] != "WARNING!":
+                    if lines["l(km)"][iter] >= 80:
+                            z_i += ((np.complex_(lines["IMPEDANCE"][iter])**-1 + lines["b shunt (mhos/km)"][iter] * 1j))**-1
+                    else:
+                        z_i += lines["IMPEDANCE"][iter]
+                iter += 1
 
+        iter = 0
+        for j in lines["Bus j"]:
+            if j == i + 1:
+                if lines["IMPEDANCE"][iter] != "WARNING!":
+                    if lines["l(km)"][iter] >= 80:
+                            z_i += ((np.complex_(lines["IMPEDANCE"][iter])**-1 + lines["b shunt (mhos/km)"][iter] * 1j))**-1
+                    else:
+                        z_i += lines["IMPEDANCE"][iter]
+                iter += 1
+        
+        #Ahora asignamos el valor inverso de la impedancia z_ i al elemento ii de nuestra matriz
+        ybus_array[i][i] = z_i**-1
+
+    #Luego desarrollamos los elementos fuera de la diagonal principal que representarán las
+    #impedancias de línea
+    iter = 0
+    for i in lines["Bus i"]:
+        if lines["Warning"][iter] != "WARNING!":
+            for j in range(dim):
+                ybus_array[j][i] = -(lines["IMPEDANCE"][iter])**-1
+                ybus_array[i][j] = -(lines["IMPEDANCE"][iter])**-1
+        iter += 1
+    
 main()
