@@ -12,7 +12,8 @@ def main():
     lines = pd.read_excel("data_io.xlsx", "LINES")
     lines = z_line(lines)
     generation = vz_gen(generation)
-    ybus(lines, generation, load)
+    ybus_and_voltages = ybus(lines, generation, load)
+    print(ybus_and_voltages[0])
 
 '''Esta función calcula el vector de corrientes para todas la
 barras e impedancias de generador'''
@@ -38,6 +39,8 @@ def vz_gen(generation: pd.DataFrame):
         if generation["Warning"][i] != "WARNING!":
             v_comp = np.complex_(generation["E ind(kV)"][i] * np.cos(generation["Angle (degrees)"][i]) + generation["E ind(kV)"][i] * np.sin(generation["Angle (degrees)"][i]) * 1j)
             x_comp = np.complex_(generation["R gen (ohms)"][i] + generation["X gen (ohms)"][i] * 1j)
+            if x_comp == 0:
+                x_comp = 10**-6 + 0 * 1j
             corrientes.append(v_comp/x_comp)
         else:
             corrientes.append(0)
@@ -150,4 +153,27 @@ def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
                 ybus_array[j][i] = -(lines["IMPEDANCE"][iter])**-1
                 ybus_array[i][j] = -(lines["IMPEDANCE"][iter])**-1
         iter += 1
+   
+    #Creamos el vector de las corrientes
+    I = list()
+    for i in range(dim):
+        I.append(0 + 0 *1j)
+    
+    #Asignamos los valores de las corrientes en orden 
+    iter = 0   
+    for i in generation["Bus i"]:
+        I[i - 1] = generation["I (A)"][iter]
+        iter += 1
+    
+    #Verificamos que todas las corrientes estén en el vector
+    iter = 0
+    for i in I:
+        if i == 0:
+            if iter > 0 and iter < len(I) - 1:
+                I[iter] = I[iter - 1] + I[iter + 1]
+            
+    V_vector = np.dot(np.linalg.inv(ybus_array), I)
+    
+    return [ybus_array, V_vector]
+    
 main()

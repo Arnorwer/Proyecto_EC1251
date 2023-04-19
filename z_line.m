@@ -13,7 +13,7 @@ function [lines] = z_line(lines)
     end
 
     %calculamos impedancias
-    line_impedances = [];
+    line_impedances = zeros(length(lines.List_Line), 1);
     for i = 1:length(lines.List_Line)
         if lines.Warning(i) != 0
             line_impedances(i) = complex(lines.l_km_(i) * lines.r_line__ohms_km_(i), lines.l_km_(i) * lines.x_line__ohms_km_ (i));
@@ -21,6 +21,6 @@ function [lines] = z_line(lines)
             line_impedances(i) = 0;
         end
     end
-
+    lines.IMPEDANCE = line_impedances
 end
 
