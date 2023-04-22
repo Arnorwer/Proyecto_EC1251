@@ -1,10 +1,10 @@
-function [Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp)
+function [Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp, voltajes)
   %EN ESTA FUNCION DETERMINAREMOS LA COMPENSACION DE LOS VOLTAJES DE NODOS
       %llamado de funciones importantes
-  [ybus_array, V_vector] = ybus(lines, generation, z_load);
-  Z_bus= V_vector;
+
+  Z_bus= voltaje;
   Rango_Nominal= v_nom;
-  Vn= ybus_array;
+  Vn= ybus_sin_comp;
   Voltajes_nominal= Rango_Nominal(:,1);
   Voltaje_nominal_por_arriba= Voltajes_nominal*(Rango_Nominal(:,3)/100);
   Voltaje_nominal_por_abajo= Voltajes_nominal*(Rango_Nominal(:,2)/100);
@@ -32,13 +32,11 @@ function [Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp)
       %CONDICIONES PARA COMPENSAR
       if (imag(Qcomp1)~=0) || (V_malo_arriba==k && V_malo_abajo==k )
         n=n+1;
-        list_comp(n,1)=n;
-        Bus_i(n,1)=k;   %AQUI HAY QUE PONER WARNING , NO ES POSIBLE COMPENSAR
+        Bus_i(n,1)=k;
         Qcomp(n,1)=0;
         Xcomp(n,1)=0;
       elseif find(V_malo_arriba==k)
         n=n+1;
-        list_comp(n,1)=n;
         Bus_i(n,1)=k;
         Qind= max(Qc);
         Qc
@@ -47,9 +45,7 @@ function [Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp)
         Xcomp(n,1)=Xind;
       elseif find(V_malo_abajo==k)
         n=n+1;
-        list_comp(n,1)=n;
         Bus_i(n,1)=k;
-        type_compensador{n,1}='CAP';
         Qcap= min(Qc);
         Qc
         Qcomp(n,1)=Qcap;
