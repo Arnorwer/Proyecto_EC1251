@@ -2,8 +2,6 @@
 function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(lines, ybus_sin_comp)
   % Calculo de flujo de potencias en las lineas
 
-  LINES = lines;
-
   len=size(lines);
   iniciales= lines(1:len(1),1);
    % Nodos y lista
@@ -45,7 +43,7 @@ endfunction
 function [Slost,Plost,Qlost]=POTENCIAS_PERDIDAS()
     %Se calculan las potencias pérdidas en las líneas
 
-  [S_ij,~,~,Sji,~,~] = lineflow(Y, lines, ybus) ;
+  [S_ij,~,~,Sji,~,~] = lineflow(lines, ybus) ;
   LINES = lines;
 
   len=size(lines);

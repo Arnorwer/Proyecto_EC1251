@@ -1,10 +1,10 @@
 pkg load io
 pkg load dataframe
 
-[v_nom, txt1] = xlsread("data_io.xlsx", 1);
-[generation, txt2] = xlsread("data_io.xlsx", 2);
-[z_load, txt3] = xlsread("data_io.xlsx", 3);
-[lines, txt4] = xlsread("data_io.xlsx", 4);
+[v_nom, txt1] = xlsread("caso_prueba1.xlsx", 1);
+[generation, txt2] = xlsread("caso_prueba1.xlsx", 2);
+[z_load, txt3] = xlsread("caso_prueba1.xlsx", 3);
+[lines, txt4] = xlsread("caso_prueba1.xlsx", 4);
 
 v_nom = dataframe(v_nom);
 v_nom.colnames = txt1(1, :);
