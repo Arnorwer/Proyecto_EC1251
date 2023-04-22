@@ -15,8 +15,8 @@ function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(lines, ybus_sin_comp)
   for m=1:len(1)
    Bus_i= lines(m,2); %Barra i
    Bus_j= lines(m,3);  %Barra j
-   Vi= ybus_array(Bus_i,1);  %Voltaje en la barra i
-   Vj= ybus_array(Bus_j,1);  %Voltaje en la barra j
+   Vi= ybus_sin_comp(Bus_i,1);  %Voltaje en la barra i
+   Vj= ybus_sin_comp(Bus_j,1);  %Voltaje en la barra j
    yij= lines(m,6);  % Admitancia en la linea ij
    yi0= lines(m,8)/2; %Admitancia capacitiva de la línea
    %Flujo de potencia de i -> j
