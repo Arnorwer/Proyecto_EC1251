@@ -47,6 +47,10 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
     % Ahora asignamos inv_sum al elemento kk de nuestra matriz
     ybus_array(k, k) = inv_sum;
   endfor
+
+  %Por último agregamos las impedancias de generadores
+  for l = 1:length(generation.List_Gen)
+    inv_sum += (generation.R_gen__ohms_(l) + generation.X_gen__ohms_(l) * i)^(-1)
   
   % Luego desarrollamos los elementos fuera de la diagonal principal que representarán las impedancias de línea
   for k = 1:length(lines.List_Line)

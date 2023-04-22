@@ -1,4 +1,4 @@
-function [Bus_i,Qcomp]= Z_comp(v_nom)
+function [Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp)
   %EN ESTA FUNCION DETERMINAREMOS LA COMPENSACION DE LOS VOLTAJES DE NODOS
       %llamado de funciones importantes
   [ybus_array, V_vector] = ybus(lines, generation, z_load);
