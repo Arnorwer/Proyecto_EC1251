@@ -19,6 +19,6 @@ generation = vz_gen(generation)
 lines = z_line(lines)
 [ybus_sin_comp, voltajes] = ybus(lines, generation, z_load)
 disp(ybus_sin_comp)
-#run z_comp.m
-#run lineflow.m
+Z_comp(v_nom)
+lineflow(Y, lines, ybus)
 
