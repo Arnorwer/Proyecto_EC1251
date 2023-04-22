@@ -27,7 +27,7 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
       if lines.Bus_i(l) == k
         if lines.Warning == 0
           if lines.l_km_(l) >= 80
-            inv_sum += ((lines.impedance(l))^(-1) + ((lines.b_shunt__mhos_km_(l) * i) / 2));
+            inv_sum += ((lines.impedance(l))^(-1) - ((lines.b_shunt__mhos_km_(l) * i) / 2));
           else
             inv_sum += lines.impedance(l)^(-1);
           endif
@@ -37,7 +37,7 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
       if lines.Bus_j(l) == k
         if lines.Warning(l) == 0
           if lines.l_km_(l) >= 80
-            inv_sum += ((lines.impedance(l))^(-1) + ((lines.b_shunt__mhos_km_(l) * i) / 2));
+            inv_sum += ((lines.impedance(l))^(-1) - ((lines.b_shunt__mhos_km_(l) * i) / 2));
           else
             inv_sum += lines.impedance(l)^(-1);
           endif
@@ -47,15 +47,15 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
 
     %Por último agregamos las impedancias de generadores
     for l = 1:length(generation.List_Gen)
-      if l == k
-        %inv_sum += (generation.R_gen__ohms_(l) + generation.X_gen__ohms_(l) * i)^(-1);
+      if generation.Bus_i(l) == k
+        inv_sum += (generation.R_gen__ohms_(l) + generation.X_gen__ohms_(l) * i)^(-1);
       endif
     endfor
 
     % Ahora asignamos inv_sum al elemento kk de nuestra matriz
     ybus_array(k, k) = inv_sum;
   endfor
-  
+
   % Luego desarrollamos los elementos fuera de la diagonal principal que representarán las impedancias de línea
   for k = 1:length(lines.List_Line)
     if lines.Warning(k) != 1
