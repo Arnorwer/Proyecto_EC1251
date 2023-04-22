@@ -1,4 +1,4 @@
-function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(Y, lines, ybus)
+function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(lines, ybus)
   % Calculo de flujo de potencias en las lineas
 
   LINES = lines;

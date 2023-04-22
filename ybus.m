@@ -27,7 +27,7 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
       if lines.Bus_i(l) == k
         if lines.Warning == 0
           if lines.l_km_(l) >= 80
-            inv_sum += ((lines.impedance(l))^(-1) + (lines.b_shunt__mhos_km_(l) * i) / 2);
+            inv_sum += ((lines.impedance(l))^(-1) + ((lines.b_shunt__mhos_km_(l) * i) / 2));
           else
             inv_sum += lines.impedance(l)^(-1);
           endif
@@ -37,7 +37,7 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
       if lines.Bus_j(l) == k
         if lines.Warning(l) == 0
           if lines.l_km_(l) >= 80
-            inv_sum += ((lines.impedance(l))^(-1) + (lines.b_shunt__mhos_km_(l) * i) / 2);
+            inv_sum += ((lines.impedance(l))^(-1) + ((lines.b_shunt__mhos_km_(l) * i) / 2));
           else
             inv_sum += lines.impedance(l)^(-1);
           endif
@@ -48,7 +48,7 @@ function [ybus_array, V_vector] = ybus(lines, generation, z_load)
     %Por último agregamos las impedancias de generadores
     for l = 1:length(generation.List_Gen)
       if l == k
-        inv_sum += (generation.R_gen__ohms_(l) + generation.X_gen__ohms_(l) * i)^(-1);
+        %inv_sum += (generation.R_gen__ohms_(l) + generation.X_gen__ohms_(l) * i)^(-1);
       endif
     endfor
 
