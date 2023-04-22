@@ -19,6 +19,7 @@ generation = vz_gen(generation);
 lines = z_line(lines);
 [ybus_sin_comp, voltajes] = ybus(lines, generation, z_load);
 disp(ybus_sin_comp);
-Z_comp(v_nom, ybus_sin_comp);
-lineflow(Y, lines, ybus_sin_comp);
+lineflow(lines, ybus_sin_comp);
+[Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp, voltajes);
+
 
