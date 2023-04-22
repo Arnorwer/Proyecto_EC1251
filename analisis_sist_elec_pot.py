@@ -13,7 +13,10 @@ def main():
     lines = z_line(lines)
     generation = vz_gen(generation)
     ybus_and_voltages = ybus(lines, generation, load)
-    print(ybus_and_voltages[0])
+
+    #print("Ybus is:\n")
+    #for i in ybus_and_voltages[0]:
+    #    print(i)
 
 '''Esta función calcula el vector de corrientes para todas la
 barras e impedancias de generador'''
@@ -28,7 +31,6 @@ def vz_gen(generation: pd.DataFrame):
                 x_comp_a = np.complex_(generation["R gen (ohms)"][i] + generation["X gen (ohms)"][i] * 1j)
                 x_comp_b = np.complex_(generation["R gen (ohms)"][k] + generation["X gen (ohms)"][k] * 1j)
                 if v_comp_a/x_comp_a != v_comp_b/x_comp_b:
-                    print("Hay una inconsistencia entre dos fuentes en paralelo")
                     generation["Warning"][k] = "WARNING!"
             else:
                 generation["Warning"][k] = "OK"
@@ -72,23 +74,6 @@ def z_line(lines: pd.DataFrame):
     lines["IMPEDANCE"] = line_impedances
     return lines
 
-'''Esta función calcula la impedancia equivalente de
-impedancias en paralelo'''
-def z_paral(impedances):
-    z_eq_inv = 0
-    for i in impedances:
-        z_eq_inv += i**-1
-    z_eq = z_eq_inv**-1
-    return z_eq
-
-'''Esta función calcula la impedancia equivalente de
-impedancias en serie'''
-def z_serie(impedances):
-    z_eq = 0
-    for i in impedances:
-        z_eq += i
-    return z_eq
-
 '''Es el mismo método de nodos para resolver 
 circuitos pero en alterna'''
 def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
@@ -106,19 +91,16 @@ def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
     #cada nodo y al invertir este resultado tendremos 
     #nuestra diagonal principal
     for i in range(dim):
-        z_i = 0
-        inv_sum = 0
+        y_ii = 0
         iter = 0
         #Primero sumamos la impedancia de las cargas
         for j in load["Bus i"]:
             if j == i + 1:
-                inv_sum += (load["R load (ohms)"][iter])**-1
                 if load["Type"][iter] == "IND":
-                    inv_sum += (np.complex_(load["X load (ohms)"][iter] * 1j))**-1
+                    y_ii += (load["R load (ohms)"][iter] + load["X load (ohms)"][iter] * 1j)**-1
                 else:
-                    inv_sum -= (np.complex_(load["X load (ohms)"][iter] * 1j))**-1
-                z_i += inv_sum**-1
-                iter += 1
+                    y_ii += (load["R load (ohms)"][iter] - load["X load (ohms)"][iter] * 1j)**-1
+            iter += 1
         iter = 0
         
         #Luego añadimos la impedancia de línea
@@ -126,23 +108,25 @@ def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
             if j == i + 1:
                 if lines["IMPEDANCE"][iter] != "WARNING!":
                     if lines["l(km)"][iter] >= 80:
-                            z_i += ((np.complex_(lines["IMPEDANCE"][iter])**-1 + lines["b shunt (mhos/km)"][iter] * 1j))**-1
+                        y_ii += (lines["IMPEDANCE"][iter])**-1 + (lines["l(km)"][iter] * lines["b shunt (mhos/km)"][iter] * 1j)/2
                     else:
-                        z_i += lines["IMPEDANCE"][iter]
-                iter += 1
-
+                        y_ii += lines["IMPEDANCE"][iter]**-1
+            iter += 1
+        
         iter = 0
         for j in lines["Bus j"]:
             if j == i + 1:
                 if lines["IMPEDANCE"][iter] != "WARNING!":
                     if lines["l(km)"][iter] >= 80:
-                            z_i += ((np.complex_(lines["IMPEDANCE"][iter])**-1 + lines["b shunt (mhos/km)"][iter] * 1j))**-1
+                            y_ii += (lines["IMPEDANCE"][iter])**-1 + (lines["l(km)"][iter] * lines["b shunt (mhos/km)"][iter] * 1j)/2
                     else:
-                        z_i += lines["IMPEDANCE"][iter]
-                iter += 1
-        
+                        y_ii += lines["IMPEDANCE"][iter]**-1
+            iter += 1
+        print("Y_" + str(i + 1) + " = " + str(y_ii))
         #Ahora asignamos el valor inverso de la impedancia z_ i al elemento ii de nuestra matriz
-        ybus_array[i][i] = z_i**-1
+        #print("Y_" + str(i + 1) + " = " + str(y_ii))
+        #print("Y_" + str(iter + 1) + "^-1 = " + str(y_ii**-1))
+        ybus_array[i][i] = 1
 
     #Luego desarrollamos los elementos fuera de la diagonal principal que representarán las
     #impedancias de línea
@@ -150,9 +134,10 @@ def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
     for i in lines["Bus i"]:
         if lines["Warning"][iter] != "WARNING!":
             for j in range(dim):
-                ybus_array[j][i] = -(lines["IMPEDANCE"][iter])**-1
-                ybus_array[i][j] = -(lines["IMPEDANCE"][iter])**-1
-        iter += 1
+                if i != j:
+                    ybus_array[j][i] = -(lines["IMPEDANCE"][iter])**-1
+                    ybus_array[i][j] = -(lines["IMPEDANCE"][iter])**-1
+            iter += 1
    
     #Creamos el vector de las corrientes
     I = list()
@@ -171,6 +156,7 @@ def ybus(lines: pd.DataFrame, generation: pd.DataFrame, load: pd.DataFrame):
         if i == 0:
             if iter > 0 and iter < len(I) - 1:
                 I[iter] = I[iter - 1] + I[iter + 1]
+            iter += 1
             
     V_vector = np.dot(np.linalg.inv(ybus_array), I)
     
