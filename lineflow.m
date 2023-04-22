@@ -1,8 +1,8 @@
-function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(lines, ybus)
+
+function [S_ij,P_ij,Q_ij,Sji,Pji,Qji] = lineflow(lines, ybus_sin_comp)
   % Calculo de flujo de potencias en las lineas
 
   LINES = lines;
-  [ybus_array, V_vector] = ybus(lines, generation, z_load);
 
   len=size(lines);
   iniciales= lines(1:len(1),1);
