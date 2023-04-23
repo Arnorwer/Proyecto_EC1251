@@ -25,50 +25,76 @@ lines.colnames = txt4(1, :);
 generation = vz_gen(generation);
 lines = z_line(lines);
 [ybus_sin_comp, voltajes, dim] = ybus(lines, generation, z_load);
-%disp(ybus_sin_comp);
+zbus_sin_comp = inv(ybus_sin_comp);
+[~, P_ij, Q_ij, line_f] = lineflow(lines, ybus_sin_comp, voltajes, dim);
+[v_nuevo, Q_comp, x_comp, comp, type_c] = z_comp(v_nom, voltajes, zbus_sin_comp, dim);
+
+%Escribimos la hoja v_nom
+xlswrite("output.xlsx", {txt3{1, 1}, txt3{1, 2}, txt3{1, 3}}, "V_NOM", "A1:C1");
+xlswrite("output.xlsx", v_nom.data, "V_NOM", "A2:C2");
 
 %Escribimos los datos de la hoja generation
-col_names(txt1);
-xlswrite("output.xlsx", {txt2{1, 1}, txt2{1, 2}, txt2{1, 3}, txt2{1, 4}, txt2{1, 5}, txt2{1, 6}, txt2{1, 7}}, "Sheet2", "A1:Z1");
-xlswrite("output.xlsx", generation.data, "Sheet2", "A2:Z10");
-xlswrite("output.xlsx", {"I(A)", "Angulos_I"}, "Sheet2", "H1:I1");
+xlswrite("output.xlsx", {txt2{1, 1}, txt2{1, 2}, txt2{1, 3}, txt2{1, 4}, txt2{1, 5}, txt2{1, 6}, txt2{1, 7}}, "GENERATION", "A1:Z1");
+xlswrite("output.xlsx", generation.data, "GENERATION", "A2:Z10");
+xlswrite("output.xlsx", {"I(A)", "Angulos_I"}, "GENERATION", "H1:I1");
 
-%Repetimos la escritura con todas la hojas
-col_names(txt3);
-xlswrite("output.xlsx", {txt3{1, 1}, txt3{1, 2}, txt3{1, 3}, txt3{1, 4}, txt3{1, 5}, txt3{1, 6}}, "Sheet3", "A1:Z1");
-xlswrite("output.xlsx",  z_load.data, "Sheet3", "A2:Z10");
+%Hoja load
+xlswrite("output.xlsx", {txt3{1, 1}, txt3{1, 2}, txt3{1, 3}, txt3{1, 4}, txt3{1, 5}, txt3{1, 6}}, "LOAD", "A1:Z1");
+xlswrite("output.xlsx",  z_load.data, "LOAD", "A2:Z10");
 
-col_names(txt4);
-xlswrite("output.xlsx", {txt4{1, 1}, txt4{1, 2}, txt4{1, 3}, txt4{1, 4}, txt4{1, 5}, txt4{1, 6}, txt4{1, 7}, txt4{1, 8}}, "Sheet4", "A1:Z1");
-xlswrite("output.xlsx",  lines.data, "Sheet4", "A2:Z10");
-xlswrite("output.xlsx",  "Impedance", "Sheet4", "I1");
+%hoja lines
+xlswrite("output.xlsx", {txt4{1, 1}, txt4{1, 2}, txt4{1, 3}, txt4{1, 4}, txt4{1, 5}, txt4{1, 6}, txt4{1, 7}, txt4{1, 8}}, "LINES", "A1:Z1");
+xlswrite("output.xlsx",  lines.data, "LINES", "A2:Z10");
+xlswrite("output.xlsx",  "Impedance", "LINES", "I1");
 
-col_names(txt5);
-xlswrite("output.xlsx", {txt5{1, 1}, txt5{1, 2}, txt5{1, 3}, txt5{1, 4}, txt5{1, 5}, txt5{1, 6}, txt5{1, 7}}, "Sheet5", "A1:Z1");
-
-%Acá va Thevenin
-col_names(txt6);
-xlswrite("output.xlsx", {txt6{1, 1}, txt6{1, 2}, txt6{1, 3}, txt6{1, 4}, txt6{1, 5}, txt6{1, 6}, txt6{1, 7}}, "Sheet6", "A1:Z1");
-%Escribimos cada Vth
+%hoja reactive_comp
+xlswrite("output.xlsx", {txt5{1, 1}, txt5{1, 2}, txt5{1, 3}, txt5{1, 4}, txt5{1, 5}, txt5{1, 6}, txt5{1, 7}}, "REACTIVE_COMP", "A1:Z1");
 for k = 1:dim
     element = strcat("A", int2str(k + 1));
-    xlswrite("output.xlsx",  k, "Sheet6", element);
+    xlswrite("output.xlsx",  k, "REACTIVE_COMP", element);
     element = strcat("B", int2str(k + 1));
-    xlswrite("output.xlsx",  sqrt(real(voltajes(k))^(2) + imag(voltajes(k))^(2)), "Sheet6", element);
-    element = strcat("C", int2str(k + 1));
-    xlswrite("output.xlsx",  atan(imag(voltajes(k)^(2)) / real(voltajes(k))), "Sheet6", element);
+    xlswrite("output.xlsx",  k, "REACTIVE_COMP", element);
     element = strcat("D", int2str(k + 1));
-    xlswrite("output.xlsx",  real(ybus_sin_comp(k, k)), "Sheet6", element);
+    xlswrite("output.xlsx",  type_c{k}, "REACTIVE_COMP", element);
     element = strcat("E", int2str(k + 1));
-    xlswrite("output.xlsx",  imag(ybus_sin_comp(k, k)), "Sheet6", element);
+    xlswrite("output.xlsx",  v_nuevo(k), "REACTIVE_COMP", element);
+    element = strcat("F", int2str(k + 1));
+    xlswrite("output.xlsx",  Q_comp(k), "REACTIVE_COMP", element);
+    element = strcat("G", int2str(k + 1));
+    xlswrite("output.xlsx",  x_comp(k), "REACTIVE_COMP", element);
 endfor
-%lineflow(lines, ybus_sin_comp);
-%[Bus_i,Qcomp]= Z_comp(v_nom, ybus_sin_comp, voltajes);
 
+%Acá va Thevenin
+xlswrite("output.xlsx", {txt6{1, 1}, txt6{1, 2}, txt6{1, 3}, txt6{1, 4}, txt6{1, 5}, txt6{1, 6}, txt6{1, 7}}, "VTH_AND_ZTH", "A1:Z1");
+%Escribimos cada elemento
+for k = 1:dim
+    element = strcat("A", int2str(k + 1));
+    xlswrite("output.xlsx",  k, "VTH_AND_ZTH", element);
+    element = strcat("B", int2str(k + 1));
+    xlswrite("output.xlsx",  sqrt(real(voltajes(k))^(2) + imag(voltajes(k))^(2)), "VTH_AND_ZTH", element);
+    element = strcat("C", int2str(k + 1));
+    xlswrite("output.xlsx",  atan(imag(voltajes(k)^(2)) / real(voltajes(k))), "VTH_AND_ZTH", element);
+    element = strcat("D", int2str(k + 1));
+    xlswrite("output.xlsx",  real(zbus_sin_comp(k, k)), "VTH_AND_ZTH", element);
+    element = strcat("E", int2str(k + 1));
+    xlswrite("output.xlsx",  imag(zbus_sin_comp(k, k)), "VTH_AND_ZTH", element);
+    element = strcat("F", int2str(k + 1));
+    xlswrite("output.xlsx",  comp{k}, "VTH_AND_ZTH", element);
+    element = strcat("G", int2str(k + 1));
+    xlswrite("output.xlsx",  type_c{k}, "VTH_AND_ZTH", element);
+endfor
 
-#xlswrite("output.xlsx", reactive_comp, 5);
-#xlswrite("output.xlsx", voltajes, 6);
-%xlswrite("output.xlsx", generation, 8);
-%xlswrite("output.xlsx", generation, 9);
-%xlswrite("output.xlsx", generation, 10);
-%xlswrite("output.xlsx", generation, 11);
+%Lineflow
+xlswrite("output.xlsx", {txt7{1, 1}, txt7{1, 2}, txt7{1, 3}, txt7{1, 4}, txt7{1, 5}}, "LINEFLOW", "A1:Z1");
+for k = 1:length(lines.List_Line)
+    element = strcat("A", int2str(k + 1));
+    xlswrite("output.xlsx",  k, "LINEFLOW", element);
+    element = strcat("B", int2str(k + 1));
+    xlswrite("output.xlsx",  line_f{k}(1), "LINEFLOW", element);
+    element = strcat("C", int2str(k + 1));
+    xlswrite("output.xlsx",  line_f{k}(2), "LINEFLOW", element);
+    element = strcat("D", int2str(k + 1));
+    xlswrite("output.xlsx",  P_ij(k), "LINEFLOW", element);
+    element = strcat("E", int2str(k + 1));
+    xlswrite("output.xlsx",  Q_ij(k), "LINEFLOW", element);
+endfor

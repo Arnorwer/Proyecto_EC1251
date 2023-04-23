@@ -1,4 +1,4 @@
-function [ybus_array, V_vector, dim] = ybus(lines, generation, z_load)
+function [ybus_array, v_vector, dim] = ybus(lines, generation, z_load)
   
   % Cálculo de la dimensión de nuestra matriz, que será de n x n
   % donde n es el número de nodos sin contar la referencia
@@ -84,4 +84,4 @@ function [ybus_array, V_vector, dim] = ybus(lines, generation, z_load)
       endif
     endif
   endfor
-  V_vector = inv(ybus_array) * I_l;
+  v_vector = inv(ybus_array) * I_l;
