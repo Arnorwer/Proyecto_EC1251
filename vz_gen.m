@@ -20,16 +20,20 @@ function generation = vz_gen(generation)
 
     % Cálculo de la corriente
     corrientes = zeros(length(generation.List_Gen), 1);
+    angulos_cor = zeros(length(generation.List_Gen), 1);
     for i = 1:length(generation.List_Gen)
         if strcmp(generation.Warning(i), 0) ~= 1
             v_comp = complex(generation.E_ind_kV_(i) * cosd(generation.Angle__degrees_(i)), generation.E_ind_kV_(i) * sind(generation.Angle__degrees_(i)));
             x_comp = complex(generation.R_gen__ohms_(i), generation.X_gen__ohms_(i));
-            corrientes(i) = v_comp / x_comp;
+            corrientes(i) = sqrt(real(v_comp / x_comp)^(2) + imag(v_comp / x_comp)^(2));
+            angulos_cor(i) = atan(imag(v_comp / x_comp) / real(v_comp / x_comp));
         else
             corrientes(i) = 0;
+            angulos_cor(i) = 0;
         end
     end
     generation.I_A_ = corrientes;
+    generation.Angulo_I = angulos_cor;
 endfunction
 
 
